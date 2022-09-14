@@ -1,38 +1,50 @@
 package com.bridgelabz;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class HotelReservation {
+    static Scanner scanner = new Scanner(System.in);
     List<Hotel> hotelList = new ArrayList<>();
 
-    public boolean addHotel(Hotel hotel){
+    boolean addHotel(Hotel hotel) {
         hotelList.add(hotel);
         return true;
     }
+
     Hotel getCheapestHotel(String checkInDate, String checkOutDate) {
-        int totalReservationDays = CalculateTotalReservationDays(checkInDate, checkOutDate);
-        calculateTotalCost(totalReservationDays);
-        Hotel cheapestHotel = hotelList.stream().sorted((x, y) -> Integer.compare(x.getTotalCost(), y.getTotalCost())).collect(Collectors.toList()).get(0);
+        LocalDate inDate = LocalDate.of(Integer.valueOf(checkInDate.substring(6, 10)), Integer.valueOf(checkInDate.substring(3, 5)), Integer.valueOf(checkInDate.substring(0, 2)));
+        LocalDate outDate = LocalDate.of(Integer.valueOf(checkOutDate.substring(6, 10)), Integer.valueOf(checkOutDate.substring(3, 5)), Integer.valueOf(checkOutDate.substring(0, 2)));
+
+        long totalNumberOfDays = getNumberOfDays(inDate, outDate);
+        long weekendDays = getNumberOfWeekendDays(inDate, outDate);
+        long weekDays = totalNumberOfDays - weekendDays;
+
+        calculateTotalCost(weekDays, weekendDays);
+        Hotel cheapestHotel = hotelList.stream().sorted((x, y) -> Long.compare(x.getTotalCost(), y.getTotalCost())).collect(Collectors.toList()).get(0);
         return cheapestHotel;
     }
-    int CalculateTotalReservationDays(String checkInDate, String checkOutDate) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Integer.valueOf(checkInDate.substring(6, 10)), Integer.valueOf(checkInDate.substring(3, 5)), Integer.valueOf(checkInDate.substring(0, 2)));
-        Date date1 = calendar.getTime();
-        calendar.set(Integer.valueOf(checkOutDate.substring(6, 10)), Integer.valueOf(checkOutDate.substring(3, 5)), Integer.valueOf(checkOutDate.substring(0, 2)));
-        Date date2 = calendar.getTime();
-        int totalDays = (int) Math.abs((date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24));
+
+    long getNumberOfDays(LocalDate checkInDate, LocalDate checkOutDate) {
+        int totalDays = (int) checkInDate.datesUntil(checkOutDate).count();
         return totalDays;
     }
 
-    void calculateTotalCost(int totalDays) {
+    long getNumberOfWeekendDays(LocalDate checkInDate, LocalDate checkOutDate) {
+        Stream<LocalDate> weekendDays = checkInDate.datesUntil(checkOutDate).filter(date -> {
+            DayOfWeek day = date.getDayOfWeek();
+            boolean isWeekendDay = (day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY);
+            return isWeekendDay;
+        });
+        return weekendDays.collect(Collectors.toList()).size();
+    }
+
+    void calculateTotalCost(long weekDays, long weekendDays) {
         hotelList.stream().forEach(x -> {
-            x.setTotalCost(totalDays * x.getRate());
+            x.setTotalCost(weekDays * x.getWeekdayRate() + weekendDays * x.getWeekendRate());
         });
     }
 }
-
