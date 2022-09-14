@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class HotelReservation {
+
     static Scanner scanner = new Scanner(System.in);
     List<Hotel> hotelList = new ArrayList<>();
 
@@ -41,7 +42,6 @@ public class HotelReservation {
         });
         return weekendDays.collect(Collectors.toList()).size();
     }
-
     void calculateTotalCost(long weekDays, long weekendDays) {
         hotelList.stream().forEach(x -> {
             x.setTotalCost(weekDays * x.getWeekdayRate() + weekendDays * x.getWeekendRate());
