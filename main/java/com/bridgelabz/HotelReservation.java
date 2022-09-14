@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class HotelReservation {
-
     static Scanner scanner = new Scanner(System.in);
     List<Hotel> hotelList = new ArrayList<>();
 
@@ -15,7 +14,6 @@ public class HotelReservation {
         hotelList.add(hotel);
         return true;
     }
-
     Hotel getCheapestHotel(String checkInDate, String checkOutDate) {
         LocalDate inDate = LocalDate.of(Integer.valueOf(checkInDate.substring(6, 10)), Integer.valueOf(checkInDate.substring(3, 5)), Integer.valueOf(checkInDate.substring(0, 2)));
         LocalDate outDate = LocalDate.of(Integer.valueOf(checkOutDate.substring(6, 10)), Integer.valueOf(checkOutDate.substring(3, 5)), Integer.valueOf(checkOutDate.substring(0, 2)));
